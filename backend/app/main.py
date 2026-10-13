@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.agreements import router as agreements_router
+
 app = FastAPI(
     title="ScopeGuard Local API",
     description="Local-first AI scope analysis for freelancers.",
@@ -14,6 +16,8 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
 )
+
+app.include_router(agreements_router)
 
 
 @app.get("/")
