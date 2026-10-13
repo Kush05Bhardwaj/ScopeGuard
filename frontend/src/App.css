@@ -1,0 +1,21 @@
+#root { min-height: 100vh; }
+.app { min-height: 100vh; background: #0b0d12; color: #f3f4f6; }
+.topbar { max-width: 1080px; margin: 0 auto; padding: 28px 24px; display: flex; align-items: center; justify-content: space-between; }
+.brand { display: flex; gap: 10px; align-items: center; color: inherit; text-decoration: none; font-size: 18px; font-weight: 700; }
+.brand-mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #c4f36b; color: #10130b; }
+.muted, .footer-note { color: #9298a5; }
+.privacy-label, .eyebrow, .feature-number { color: #c4f36b; font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+.hero { max-width: 1080px; margin: 0 auto; padding: 92px 24px 64px; }
+.eyebrow { margin-bottom: 18px; }
+h1 { max-width: 720px; margin: 0; font-size: clamp(42px, 7vw, 76px); line-height: 1.04; letter-spacing: -.055em; }
+.subtitle { max-width: 640px; margin: 24px 0 36px; color: #a4aab6; font-size: 18px; line-height: 1.7; }
+.status-card, .feature-card { border: 1px solid #292d37; border-radius: 16px; background: #11141b; }
+.status-card { display: flex; align-items: center; gap: 14px; max-width: 480px; padding: 18px; }
+.status-card p, .feature-card p { margin: 7px 0 0; color: #a4aab6; font-size: 14px; line-height: 1.65; }
+.status-dot { width: 10px; height: 10px; flex: 0 0 auto; border-radius: 50%; background: #e8ad4c; }
+.status-dot.online { background: #c4f36b; }
+.feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
+.feature-card { padding: 22px; }
+.feature-card h2 { margin: 18px 0 0; font-size: 18px; }
+.footer-note { margin-top: 34px; font-size: 13px; }
+@media (max-width: 680px) { .hero { padding-top: 56px; } .feature-grid { grid-template-columns: 1fr; } }
