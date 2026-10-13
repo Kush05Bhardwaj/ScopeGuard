@@ -1,0 +1,20 @@
+[
+  {
+    "id": "request-001",
+    "text": "Please make the contact form work on mobile too.",
+    "expected_category": "in_scope",
+    "reason": "The agreement includes a contact form and responsive layouts."
+  },
+  {
+    "id": "request-002",
+    "text": "Please add user accounts, an admin dashboard, and recurring subscriptions.",
+    "expected_category": "potential_scope_change",
+    "reason": "The agreement excludes accounts, an admin dashboard, and subscription billing."
+  },
+  {
+    "id": "request-003",
+    "text": "Can you make the website more professional?",
+    "expected_category": "needs_review",
+    "reason": "The requested change is too vague to classify confidently."
+  }
+]

@@ -1,0 +1,19 @@
+PROJECT: Small Business Website
+CLIENT: Example Client
+PROVIDER: Example Freelancer
+
+AGREED DELIVERABLES
+1. Five responsive website pages: Home, About, Services, Portfolio, Contact.
+2. A contact form that sends submissions to a configured email address.
+3. Responsive layouts for desktop, tablet, and mobile.
+4. One round of visual revisions after the initial design.
+5. Delivery of the website source code.
+
+EXCLUSIONS
+1. No customer account system.
+2. No administrator dashboard.
+3. No subscription billing or payment integration.
+4. No ongoing maintenance after handover unless separately agreed.
+
+NOTE
+This is synthetic sample data for development and testing. It is not a legal contract.
