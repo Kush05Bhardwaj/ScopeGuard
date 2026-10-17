@@ -54,14 +54,21 @@ with `POST /api/reports/change-order`. The frontend lets you edit the Markdown,
 copy it, or download it as a `.md` file. Cost and timeline default to “To be
 agreed”; no additional model call or PDF export is used.
 
+By default, the frontend API URL and Ollama URL point to `127.0.0.1`, so
+agreement parsing and inference run on the same device. If you override either
+URL, agreement and request text may be sent to that configured host. Application
+code does not log agreement or request contents. This is a local-first default,
+not a guarantee of privacy for every custom deployment.
+
 Python 3.12 is the recommended baseline; the environment used to establish this
 foundation has Python 3.14. Node.js 22 LTS is recommended; Node.js 24 is installed.
 If PowerShell blocks the `npm` script, invoke `npm.cmd` as shown above.
 
 See [MVP](docs/MVP.md), [architecture](docs/ARCHITECTURE.md), the
 [Phase 2 parsing checklist](docs/PHASE2.md), and the
-[Phase 3 local analysis checklist](docs/PHASE3.md), and the
-[Phase 4 reports checklist](docs/PHASE4.md). Persistent project storage is
+[Phase 3 local analysis checklist](docs/PHASE3.md), the
+[Phase 4 reports checklist](docs/PHASE4.md), and the
+[Phase 5 validation notes](docs/PHASE5.md). Persistent project storage is
 planned for a later phase.
 
 ## Privacy

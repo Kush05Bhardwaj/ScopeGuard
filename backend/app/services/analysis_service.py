@@ -30,7 +30,43 @@ async def run_scope_analysis(request: ScopeAnalysisRequest) -> ScopeAnalysisResp
                 "requires_human_review": True,
             }
         )
-    elif result.category == "needs_review" and not result.requires_human_review:
+    elif (
+        result.category in {"needs_review", "potential_scope_change"}
+        and not result.requires_human_review
+    ):
         result = result.model_copy(update={"requires_human_review": True})
+
+    unreadable_text = any(
+        "\ufffd" in value
+        for value in (
+            result.summary,
+            result.reasoning,
+            *(item.explanation for item in result.evidence),
+        )
+    )
+    if unreadable_text:
+        result = result.model_copy(
+            update={
+                "category": "needs_review",
+                "summary": "The model returned partially unreadable text.",
+                "reasoning": (
+                    "Review the agreement and quoted passages manually before relying on this analysis."
+                ),
+                "evidence": [
+                    item.model_copy(
+                        update={
+                            "explanation": (
+                                "This passage is quoted exactly from the agreement; "
+                                "review its relevance to the request."
+                            )
+                        }
+                    )
+                    if "\ufffd" in item.explanation
+                    else item
+                    for item in result.evidence
+                ],
+                "requires_human_review": True,
+            }
+        )
 
     return result

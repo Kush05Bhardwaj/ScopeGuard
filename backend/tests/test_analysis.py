@@ -116,6 +116,7 @@ def test_invalid_model_category_returns_bad_gateway(monkeypatch):
     [
         (httpx.ConnectError("offline"), 503),
         (httpx.ReadTimeout("slow model"), 504),
+        (json.JSONDecodeError("invalid JSON", "{", 1), 502),
         (
             httpx.HTTPStatusError(
                 "model error",
@@ -125,7 +126,7 @@ def test_invalid_model_category_returns_bad_gateway(monkeypatch):
             502,
         ),
     ],
-    ids=["unavailable", "timeout", "upstream-error"],
+    ids=["unavailable", "timeout", "invalid-json", "upstream-error"],
 )
 def test_ollama_failures_map_to_api_status(monkeypatch, exception, expected_status):
     async def fail_analysis(**_kwargs):
