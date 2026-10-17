@@ -40,12 +40,18 @@ The API is at http://127.0.0.1:8000 and its health check is at
 http://127.0.0.1:8000/api/health. The frontend is at http://localhost:5173.
 Copy `frontend/.env.example` to `frontend/.env.local` to configure the API URL.
 
+Agreement text can be parsed with `POST /api/agreements/parse` using a multipart
+`file` field containing a UTF-8 `.txt` or text-based `.pdf` file. Uploads are
+limited to 10 MB and PDFs to 100 pages. Files are parsed in memory and are not
+saved. Scanned PDFs are not OCR processed.
+
 Python 3.12 is the recommended baseline; the environment used to establish this
 foundation has Python 3.14. Node.js 22 LTS is recommended; Node.js 24 is installed.
 If PowerShell blocks the `npm` script, invoke `npm.cmd` as shown above.
 
-See [MVP](docs/MVP.md) and [architecture](docs/ARCHITECTURE.md). AI analysis,
-persistent project storage, and document processing are planned for later phases.
+See [MVP](docs/MVP.md), [architecture](docs/ARCHITECTURE.md), and the
+[Phase 2 parsing checklist](docs/PHASE2.md). AI analysis and persistent project
+storage are planned for later phases.
 
 ## Privacy
 
