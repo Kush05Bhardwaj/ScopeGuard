@@ -1,5 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import "./App.css";
+import { downloadMarkdown } from "./lib/downloadReport";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
@@ -45,6 +46,14 @@ function App() {
   const [agreement, setAgreement] = useState<ParsedAgreement | null>(null);
   const [clientRequest, setClientRequest] = useState("");
   const [analysis, setAnalysis] = useState<ScopeAnalysis | null>(null);
+  const [projectName, setProjectName] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [proposedWork, setProposedWork] = useState("");
+  const [estimatedCost, setEstimatedCost] = useState("To be agreed");
+  const [estimatedTimeline, setEstimatedTimeline] = useState("To be agreed");
+  const [reportMarkdown, setReportMarkdown] = useState<string | null>(null);
+  const [reportStatus, setReportStatus] = useState<string | null>(null);
+  const [generatingReport, setGeneratingReport] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +82,8 @@ function App() {
     if (!file) return;
     setAgreement(null);
     setAnalysis(null);
+    setReportMarkdown(null);
+    setReportStatus(null);
     setError(null);
     setUploading(true);
     const form = new FormData();
@@ -93,6 +104,8 @@ function App() {
     event.preventDefault();
     if (!agreement || !clientRequest.trim()) return;
     setAnalysis(null);
+    setReportMarkdown(null);
+    setReportStatus(null);
     setError(null);
     setAnalyzing(true);
     try {
@@ -107,6 +120,49 @@ function App() {
       setError(err instanceof Error ? err.message : "Unable to analyze this request.");
     } finally {
       setAnalyzing(false);
+    }
+  }
+
+  async function generateReport() {
+    if (!agreement || !analysis || !clientRequest.trim() || !projectName.trim()) return;
+    setGeneratingReport(true);
+    setError(null);
+    setReportStatus(null);
+    try {
+      const response = await fetch(`${API_BASE}/api/reports/change-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_name: projectName,
+          client_name: clientName,
+          agreement_reference: agreement.filename,
+          agreement_text: agreement.text,
+          client_request: clientRequest,
+          analysis_category: analysis.category,
+          analysis_summary: analysis.summary,
+          evidence: analysis.evidence,
+          proposed_work: proposedWork,
+          estimated_cost: estimatedCost,
+          estimated_timeline: estimatedTimeline,
+        }),
+      });
+      if (!response.ok) throw new Error(await responseError(response));
+      const data = (await response.json()) as { title: string; markdown: string };
+      setReportMarkdown(data.markdown);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to generate the proposal.");
+    } finally {
+      setGeneratingReport(false);
+    }
+  }
+
+  async function copyReport() {
+    if (!reportMarkdown) return;
+    try {
+      await navigator.clipboard.writeText(reportMarkdown);
+      setReportStatus("Proposal copied to clipboard.");
+    } catch {
+      setReportStatus("Clipboard access is unavailable. Select and copy the proposal text.");
     }
   }
 
@@ -204,6 +260,34 @@ function App() {
               </div>
             ) : <p className="no-evidence">The model could not provide a verified passage. Human review is required.</p>}
             <p className="disclaimer">Decision support only. This is not a legal conclusion. No response is sent to the client.</p>
+
+            <section className="report-builder" aria-labelledby="report-heading">
+              <div className="step-label"><span>04</span><span>CLIENT PROPOSAL</span></div>
+              <h2 id="report-heading">Prepare a change-order draft</h2>
+              <p className="card-help">The draft uses the reviewed analysis and verified agreement passages. No additional model call is made.</p>
+              <div className="report-fields">
+                <label>Project name<input value={projectName} onChange={(event) => setProjectName(event.target.value)} maxLength={200} placeholder="Website redesign" /></label>
+                <label>Client name <span className="field-optional">(optional)</span><input value={clientName} onChange={(event) => setClientName(event.target.value)} maxLength={200} placeholder="Client name" /></label>
+                <label>Proposed additional work<textarea value={proposedWork} onChange={(event) => setProposedWork(event.target.value)} maxLength={5_000} rows={3} placeholder="Describe work for both parties to review" /></label>
+                <label>Estimated cost<input value={estimatedCost} onChange={(event) => setEstimatedCost(event.target.value)} maxLength={200} /></label>
+                <label>Estimated timeline<input value={estimatedTimeline} onChange={(event) => setEstimatedTimeline(event.target.value)} maxLength={200} /></label>
+              </div>
+              <button className="analyze-button report-generate" type="button" onClick={() => void generateReport()} disabled={!projectName.trim() || generatingReport}>
+                {generatingReport ? "Preparing draft…" : reportMarkdown ? "Regenerate draft" : "Generate proposal"}<span aria-hidden="true">→</span>
+              </button>
+              {reportMarkdown !== null && (
+                <div className="report-preview">
+                  <div className="report-preview-heading"><strong>Editable Markdown proposal</strong><span>Edit any wording before export.</span></div>
+                  <label className="visually-hidden" htmlFor="report-markdown">Editable proposal in Markdown</label>
+                  <textarea id="report-markdown" className="markdown-editor" value={reportMarkdown} onChange={(event) => setReportMarkdown(event.target.value)} rows={20} />
+                  <div className="report-actions">
+                    <button type="button" onClick={() => downloadMarkdown(`${projectName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "change-order"}-proposal.md`, reportMarkdown)}>Export Markdown</button>
+                    <button type="button" onClick={() => void copyReport()}>Copy proposal</button>
+                  </div>
+                  {reportStatus && <p className="report-status" role="status">{reportStatus}</p>}
+                </div>
+              )}
+            </section>
           </section>
         )}
         <p className="footer-note">Agreement text and requests are processed by your local ScopeGuard API and Ollama runtime.</p>

@@ -49,14 +49,20 @@ Scope review is available at `POST /api/analysis/scope`. It calls a local Ollama
 server (defaults: `http://127.0.0.1:11434`, model `gemma3:4b`) and verifies every
 evidence quote against the submitted agreement before returning it.
 
+Change-order proposals are generated deterministically from a reviewed analysis
+with `POST /api/reports/change-order`. The frontend lets you edit the Markdown,
+copy it, or download it as a `.md` file. Cost and timeline default to “To be
+agreed”; no additional model call or PDF export is used.
+
 Python 3.12 is the recommended baseline; the environment used to establish this
 foundation has Python 3.14. Node.js 22 LTS is recommended; Node.js 24 is installed.
 If PowerShell blocks the `npm` script, invoke `npm.cmd` as shown above.
 
 See [MVP](docs/MVP.md), [architecture](docs/ARCHITECTURE.md), the
 [Phase 2 parsing checklist](docs/PHASE2.md), and the
-[Phase 3 local analysis checklist](docs/PHASE3.md). Persistent project storage
-is planned for a later phase.
+[Phase 3 local analysis checklist](docs/PHASE3.md), and the
+[Phase 4 reports checklist](docs/PHASE4.md). Persistent project storage is
+planned for a later phase.
 
 ## Privacy
 
