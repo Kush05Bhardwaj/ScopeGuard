@@ -4,15 +4,15 @@
 
 ### Frontend
 
-React, Vite, and TypeScript handle the project workspace, request submission, evidence display, and draft review.
+React, Vite, and TypeScript handle agreement upload, request submission, and display classifications with verified evidence.
 
 ### Backend
 
-Python and FastAPI validate requests, parse agreement documents, orchestrate analysis, validate structured output, and manage persistence.
+Python and FastAPI validate requests, parse agreement documents, orchestrate analysis, validate structured model output, and verify evidence against source text.
 
 ### Local model runtime
 
-Ollama with a compatible Gemma model will extract requirements, compare requests with documented scope, and produce structured draft content. Model output is untrusted input.
+Ollama with a compatible Gemma model compares requests with documented scope and returns structured analysis. Model output is untrusted input; each evidence quote is checked against the submitted agreement before it is returned.
 
 ### Storage
 
