@@ -6,8 +6,25 @@ from app.schemas.report import ChangeOrderReportRequest, ChangeOrderReportRespon
 def generate_change_order(
     request: ChangeOrderReportRequest,
 ) -> ChangeOrderReportResponse:
+    if not request.analysis.evidence and (
+        request.analysis.category != "needs_review"
+        or not request.analysis.requires_human_review
+    ):
+        raise ValueError(
+            "Analysis without verified evidence must require human review and use needs_review."
+        )
+    if (
+        request.analysis.category in {"needs_review", "potential_scope_change"}
+        and not request.analysis.requires_human_review
+    ):
+        raise ValueError(
+            "Potential scope changes and ambiguous analyses must require human review."
+        )
+
     unverified_quotes = [
-        item.quote for item in request.evidence if item.quote not in request.agreement_text
+        item.quote
+        for item in request.analysis.evidence
+        if item.quote not in request.agreement_text
     ]
     if unverified_quotes:
         raise ValueError("Evidence must match an exact passage in the supplied agreement.")
@@ -15,13 +32,18 @@ def generate_change_order(
     title = f"Change Order Proposal — {request.project_name}"
     client_line = f"**Client:** {request.client_name}\n\n" if request.client_name.strip() else ""
     proposed_work = request.proposed_work.strip() or "To be defined and approved by both parties."
+    human_review_note = (
+        "**Human review required:** Yes. Review this analysis and the agreement before relying on the proposal."
+        if request.analysis.requires_human_review
+        else "**Human review required:** Review the evidence and proposal before approval."
+    )
     evidence_section = (
         "\n\n".join(
             f"> {item.quote.replace(chr(10), chr(10) + '> ')}\n\n"
             f"{item.explanation}"
-            for item in request.evidence
+            for item in request.analysis.evidence
         )
-        if request.evidence
+        if request.analysis.evidence
         else "No verified agreement passage was returned. Manual review is required."
     )
 
@@ -43,9 +65,13 @@ This proposal documents a requested change to the existing project scope.
 
 ## 3. Scope Analysis
 
-**Classification:** {request.analysis_category.replace("_", " ").title()}
+**Classification:** {request.analysis.category.replace("_", " ").title()}
 
-{request.analysis_summary.strip()}
+{request.analysis.summary.strip()}
+
+{request.analysis.reasoning.strip()}
+
+{human_review_note}
 
 ## 4. Agreement Evidence
 

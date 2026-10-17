@@ -25,7 +25,11 @@ class EvidenceItem(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     quote: str = Field(min_length=1, max_length=2_000)
-    explanation: str = Field(min_length=1, max_length=1_000)
+    explanation: str = Field(
+        default="This passage is quoted exactly from the agreement; review its relevance to the request.",
+        min_length=1,
+        max_length=1_000,
+    )
 
 
 class ScopeAnalysisResponse(BaseModel):

@@ -40,6 +40,13 @@ async function responseError(response: Response): Promise<string> {
   return `API returned HTTP ${response.status}`;
 }
 
+function requestError(error: unknown, fallback: string): string {
+  if (error instanceof TypeError) {
+    return "Can't reach the configured ScopeGuard API. Start the backend and check the API URL in frontend/.env.local.";
+  }
+  return error instanceof Error ? error.message : fallback;
+}
+
 function App() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [backendError, setBackendError] = useState<string | null>(null);
@@ -69,7 +76,7 @@ function App() {
         setBackendError(null);
       } catch (err) {
         if (controller.signal.aborted) return;
-        setBackendError(err instanceof Error ? err.message : "Unable to reach the API");
+        setBackendError(requestError(err, "Unable to reach the API"));
       }
     }
     void checkBackend();
@@ -93,7 +100,7 @@ function App() {
       if (!response.ok) throw new Error(await responseError(response));
       setAgreement((await response.json()) as ParsedAgreement);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to parse this agreement.");
+      setError(requestError(err, "Unable to parse this agreement."));
     } finally {
       setUploading(false);
       input.value = "";
@@ -117,7 +124,7 @@ function App() {
       if (!response.ok) throw new Error(await responseError(response));
       setAnalysis((await response.json()) as ScopeAnalysis);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to analyze this request.");
+      setError(requestError(err, "Unable to analyze this request."));
     } finally {
       setAnalyzing(false);
     }
@@ -138,9 +145,7 @@ function App() {
           agreement_reference: agreement.filename,
           agreement_text: agreement.text,
           client_request: clientRequest,
-          analysis_category: analysis.category,
-          analysis_summary: analysis.summary,
-          evidence: analysis.evidence,
+          analysis,
           proposed_work: proposedWork,
           estimated_cost: estimatedCost,
           estimated_timeline: estimatedTimeline,
@@ -150,7 +155,7 @@ function App() {
       const data = (await response.json()) as { title: string; markdown: string };
       setReportMarkdown(data.markdown);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to generate the proposal.");
+      setError(requestError(err, "Unable to generate the proposal."));
     } finally {
       setGeneratingReport(false);
     }
@@ -194,7 +199,7 @@ function App() {
           <section className="input-card" aria-labelledby="agreement-heading">
             <div className="step-label"><span>01</span><span>AGREEMENT</span></div>
             <h2 id="agreement-heading">Add the agreed scope</h2>
-            <p className="card-help">Upload a text file or a PDF with selectable text. Files are parsed locally and are not saved.</p>
+            <p className="card-help">Upload a text file or a PDF with selectable text. The configured API parses files in memory and does not save them. The default API address is on this device.</p>
             <label className="upload-zone">
               <input type="file" accept=".txt,.pdf,text/plain,application/pdf" onChange={(event) => void uploadAgreement(event)} disabled={uploading || analyzing} />
               <span className="upload-icon" aria-hidden="true">↑</span>
@@ -290,7 +295,7 @@ function App() {
             </section>
           </section>
         )}
-        <p className="footer-note">Agreement text and requests are processed by your local ScopeGuard API and Ollama runtime.</p>
+        <p className="footer-note">Agreement text and requests go to the configured ScopeGuard API and inference runtime. Default addresses use services on this device; custom addresses may send data elsewhere.</p>
       </section>
     </main>
   );
