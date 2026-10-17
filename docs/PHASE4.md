@@ -1,28 +1,36 @@
 # Phase 4 — Reports and Export
 
-## Acceptance checklist
+## Implemented
 
-- [x] Generate a change-order proposal from the reviewed analysis without another model call.
-- [x] Include project/date, agreement reference, client request, classification summary, verified evidence, proposed work, cost, timeline, and approval steps.
-- [x] Keep cost and timeline as editable “To be agreed” placeholders unless supplied by the user.
-- [x] Edit the Markdown proposal in the frontend before export.
-- [x] Download Markdown and copy the proposal to the clipboard.
-- [x] Reject empty or invalid request fields with HTTP 422.
-- [x] Verify report evidence quotes against the supplied agreement text.
-- [x] Backend tests pass and the frontend production build succeeds.
+- Deterministic change-order generation at `POST /api/reports/change-order`;
+  report creation makes no additional model call.
+- Proposal sections for project/date, client (optional), agreement reference,
+  request, classification, summary/reasoning, evidence, proposed work, cost,
+  timeline, and approval steps.
+- Explicit placeholders for unspecified proposed work, cost, and timeline.
+- Editable Markdown preview, clipboard copy, and `.md` download in the frontend.
+- Schema validation, evidence quote verification against the source agreement,
+  and review-flag checks before rendering.
 
-## API
+## Request contract
 
-`POST /api/reports/change-order` accepts project details, the agreement source
-and text, client request, validated analysis summary/category/evidence, and any
-user-provided proposed work, cost, or timeline. It returns a title and Markdown
-draft. It does not call Ollama or save documents or report history.
+The API accepts project and agreement metadata, the agreement text, client
+request, a complete nested `ScopeAnalysisResponse` under `analysis`, and
+user-provided proposal details. The nested analysis includes its category,
+summary, reasoning, evidence, model name, and human-review flag. Invalid or
+missing fields return HTTP 422.
 
-Evidence quotes are checked as exact substrings of the agreement before they
-are included. Invalid evidence is rejected. When no evidence is present, the
-proposal calls out that manual review is required. This is a safeguard against
-displaying fabricated quotations, not a guarantee about the analysis itself.
+Every evidence quote must be an exact substring of `agreement_text`. A report
+without evidence is accepted only when analysis is `needs_review` and requires
+human review. `potential_scope_change` and `needs_review` analyses must carry a
+human-review flag.
 
-The React proposal editor is editable. Export Markdown downloads the current
-editor contents; Copy proposal places the current contents on the clipboard.
-PDF export and SQLite proposal history are deferred.
+The API validates shape and source-quote presence. It cannot prove semantic
+correctness or authenticate the origin of the supplied analysis. Review results
+before using or sharing a proposal.
+
+## Deferred
+
+- PDF export
+- SQLite proposal history or project persistence
+- Automatic client communication

@@ -4,34 +4,68 @@
 
 ### Frontend
 
-React, Vite, and TypeScript handle agreement upload, request submission, and display classifications with verified evidence.
+React, Vite, and TypeScript provide agreement upload, request entry, analysis
+review, and change-order editing/export. The default API URL is
+`http://127.0.0.1:8000` and can be changed with `VITE_API_BASE_URL`.
 
 ### Backend
 
-Python and FastAPI validate requests, parse agreement documents, orchestrate analysis, validate structured model output, and verify evidence against source text.
+FastAPI exposes the health, agreement parsing, scope analysis, and report
+endpoints. Pydantic schemas bound and validate request and model-response
+shapes. Uploads are read in memory and are not persisted.
 
-### Local model runtime
+### Inference
 
-Ollama with a compatible Gemma model compares requests with documented scope and returns structured analysis. Model output is untrusted input; each evidence quote is checked against the submitted agreement before it is returned.
+The analysis service calls Ollama's local HTTP API. The defaults are
+`http://127.0.0.1:11434` and `gemma3:4b`; `OLLAMA_BASE_URL` and `OLLAMA_MODEL`
+can override them. Model output is untrusted. The backend validates its schema,
+removes quotations absent from the submitted agreement, and requires human
+review if evidence is missing or invalid.
+
+Quotation presence is a source check, not a semantic correctness guarantee.
+Potential scope changes and ambiguous results require human review.
+
+### Reports
+
+The frontend sends the analysis response, agreement text, and proposal details
+to `POST /api/reports/change-order`. The backend validates the nested analysis
+schema and checks evidence quotations against the agreement again. It then
+generates Markdown deterministically without another model call. The frontend
+lets the user edit the returned Markdown before copying or downloading it.
+
+The report endpoint validates schema and quote presence, but does not persist
+analysis or authenticate its origin. Treat it as a local application API, not
+as proof that an analysis is true.
 
 ### Storage
 
-SQLite is planned for project metadata, extracted requirements, analysis results, and request history. Original documents remain local. Data deletion and retention behavior must be documented before release.
+Project data, uploads, analysis results, and proposal history are not currently
+stored in SQLite. A database and retention/deletion behavior remain future
+work. Original uploaded files are not saved by the parser.
 
-## Planned request flow
+## Current request flow
 
-1. User imports an agreement.
-2. Backend extracts text and source references.
-3. Requirements are stored with evidence.
-4. User submits a new client request.
-5. Analysis compares the request against the evidence.
-6. The result is schema-validated and returned to the frontend.
-7. The user reviews the result and edits the proposed response.
+1. The browser sends one TXT or PDF file to `POST /api/agreements/parse`.
+2. The API parses UTF-8 text or extracts PDF page text in memory and returns
+   structured text with page references. Scanned PDFs are not OCR processed.
+3. The browser sends the parsed text and client request to
+   `POST /api/analysis/scope`.
+4. The backend calls Ollama, validates the structured response, and verifies
+   every evidence quotation against the submitted text.
+5. The browser displays the classification, reasoning, evidence, and review
+   notice.
+6. When asked, the browser sends the analysis and proposal fields to
+   `POST /api/reports/change-order`.
+7. The backend verifies the report evidence and returns a Markdown draft. The
+   user edits and exports it; the app does not contact the client.
 
-## Privacy and reliability
+## Local-first and reliability notes
 
-- No external inference API by default.
-- No confidential document contents in application logs.
-- Validate model output using explicit schemas.
-- Treat uncertain conclusions as requiring human review.
-- Never automatically send a client-facing response.
+- By default, both the browser API URL and Ollama URL point to `127.0.0.1`.
+- Custom endpoint URLs may send agreement and request text to another host.
+- Application code does not log document or request contents.
+- API errors use fixed details and do not echo submitted document text.
+- Missing evidence, invalid model output, ambiguous requests, and potential
+  scope changes are surfaced for human review.
+- The model's classification can still be wrong; users should review the
+  agreement and source passages before acting.

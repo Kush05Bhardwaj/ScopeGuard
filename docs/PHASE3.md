@@ -6,6 +6,7 @@
 - [x] FastAPI calls Ollama's local chat API using configurable URL and model settings.
 - [x] Evidence quotes are checked as exact substrings of the submitted agreement.
 - [x] Invented or missing evidence forces `needs_review` and human review.
+- [x] `potential_scope_change` and `needs_review` results require human review.
 - [x] Ollama connection, timeout, upstream, and invalid-output errors map to API errors.
 - [x] The frontend uploads an agreement, submits a request, and displays verified evidence.
 - [x] Deterministic tests mock the model; Phase 1/2 tests and frontend build pass.
