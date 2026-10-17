@@ -16,7 +16,7 @@ A local-first assistant for comparing client requests with an agreed project sco
 - Frontend: React, Vite, TypeScript
 - Backend: Python, FastAPI
 - Planned storage: SQLite
-- Planned local inference: Ollama with a compatible Gemma model
+- Local inference: Ollama with Gemma 3 4B
 
 ## Development
 
@@ -45,13 +45,18 @@ Agreement text can be parsed with `POST /api/agreements/parse` using a multipart
 limited to 10 MB and PDFs to 100 pages. Files are parsed in memory and are not
 saved. Scanned PDFs are not OCR processed.
 
+Scope review is available at `POST /api/analysis/scope`. It calls a local Ollama
+server (defaults: `http://127.0.0.1:11434`, model `gemma3:4b`) and verifies every
+evidence quote against the submitted agreement before returning it.
+
 Python 3.12 is the recommended baseline; the environment used to establish this
 foundation has Python 3.14. Node.js 22 LTS is recommended; Node.js 24 is installed.
 If PowerShell blocks the `npm` script, invoke `npm.cmd` as shown above.
 
-See [MVP](docs/MVP.md), [architecture](docs/ARCHITECTURE.md), and the
-[Phase 2 parsing checklist](docs/PHASE2.md). AI analysis and persistent project
-storage are planned for later phases.
+See [MVP](docs/MVP.md), [architecture](docs/ARCHITECTURE.md), the
+[Phase 2 parsing checklist](docs/PHASE2.md), and the
+[Phase 3 local analysis checklist](docs/PHASE3.md). Persistent project storage
+is planned for a later phase.
 
 ## Privacy
 
