@@ -61,6 +61,24 @@ textarea:disabled { opacity: .7; }
 .no-evidence { color: #a4aab6; font-size: 13px; }
 .disclaimer, .footer-note { margin: 24px 0 0; color: #858c99; font-size: 12px; line-height: 1.6; }
 .footer-note { margin-top: 28px; }
+.report-builder { margin-top: 28px; padding-top: 24px; border-top: 1px solid #292d37; }
+.report-builder h2 { margin: 16px 0 8px; font-size: 21px; }
+.report-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.report-fields label { display: grid; gap: 8px; color: #dfe2e7; font-size: 13px; font-weight: 600; }
+.report-fields label:nth-child(3) { grid-column: 1 / -1; }
+.field-optional { color: #9298a5; font-weight: 400; }
+.report-fields input { width: 100%; min-height: 46px; padding: 11px 13px; border: 1px solid #333946; border-radius: 9px; outline: none; background: #0d1016; color: #f3f4f6; font: inherit; font-weight: 400; }
+.report-fields input:focus { border-color: #c4f36b; box-shadow: 0 0 0 2px #c4f36b22; }
+.report-fields textarea { min-height: 90px; }
+.report-generate { max-width: 320px; }
+.report-preview { margin-top: 24px; padding-top: 22px; border-top: 1px solid #292d37; }
+.report-preview-heading { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px; font-size: 13px; }
+.report-preview-heading span { color: #9298a5; font-size: 12px; }
+.markdown-editor { min-height: 420px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; }
+.report-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.report-actions button { padding: 10px 14px; border: 1px solid #465038; border-radius: 9px; background: #1a2115; color: #d6f5a6; font-weight: 650; cursor: pointer; }
+.report-actions button:hover { border-color: #c4f36b; background: #242d1b; }
+.report-status { margin: 10px 0 0; color: #c4f36b; font-size: 13px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 @media (max-width: 760px) {
   .hero { padding-top: 48px; }
@@ -74,4 +92,7 @@ textarea:disabled { opacity: .7; }
   .input-card, .result-card { padding: 19px; }
   .field-meta, .result-topline { align-items: flex-start; flex-direction: column; }
   .evidence-heading { flex-direction: column; }
+  .report-fields { grid-template-columns: 1fr; }
+  .report-fields label:nth-child(3) { grid-column: auto; }
+  .report-preview-heading { flex-direction: column; }
 }
