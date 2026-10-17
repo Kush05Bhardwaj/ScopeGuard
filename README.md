@@ -110,10 +110,6 @@ The API root is `http://127.0.0.1:8000/`, health check is
 The included agreement and requests in `sample_data/` are synthetic examples.
 They are suitable for local development and should not be treated as contracts.
 
-The latest validation ran 49 backend tests and built the frontend for
-production. See [Phase 5 notes](docs/PHASE5.md) for the live synthetic cases and
-the fact that external user feedback has not yet been collected.
-
 ## API
 
 | Method | Endpoint | Purpose |
@@ -157,14 +153,10 @@ Real client agreements, credentials, local environment files, databases, and
 uploads should not be committed. `.gitignore` excludes common local files;
 check `git status` before committing.
 
-## Project notes
+## Documentation
 
 - [MVP goals and current status](docs/MVP.md)
 - [Architecture and data flow](docs/ARCHITECTURE.md)
-- [Phase 2: Agreement parsing](docs/PHASE2.md)
-- [Phase 3: Local AI analysis](docs/PHASE3.md)
-- [Phase 4: Reports and export](docs/PHASE4.md)
-- [Phase 5: Validation and polish](docs/PHASE5.md)
 
 ## License
 
