@@ -29,9 +29,12 @@ Potential scope changes and ambiguous results require human review.
 
 The frontend sends the analysis response, agreement text, and proposal details
 to `POST /api/reports/change-order`. The backend validates the nested analysis
-schema and checks evidence quotations against the agreement again. It then
-generates Markdown deterministically without another model call. The frontend
-lets the user edit the returned Markdown before copying or downloading it.
+schema and checks evidence quotations against the agreement again. It generates
+proposal text deterministically. When enabled, it asks local Ollama for rough
+cost and timeline suggestions when those values are missing. The user edits the
+Markdown draft before copying or downloading it. For PDF export, the browser
+sends the current edited Markdown to `POST /api/reports/change-order/pdf`; the
+backend converts it locally and returns a PDF download.
 
 The report endpoint validates schema and quote presence, but does not persist
 analysis or authenticate its origin. Treat it as a local application API, not
@@ -56,8 +59,10 @@ work. Original uploaded files are not saved by the parser.
    notice.
 6. When asked, the browser sends the analysis and proposal fields to
    `POST /api/reports/change-order`.
-7. The backend verifies the report evidence and returns a Markdown draft. The
-   user edits and exports it; the app does not contact the client.
+7. The backend verifies report evidence, optionally obtains local estimate
+   suggestions, and returns a Markdown draft.
+8. The user edits and exports the final draft; the app does not contact the
+   client.
 
 ## Local-first and reliability notes
 

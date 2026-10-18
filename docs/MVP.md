@@ -12,8 +12,9 @@ freelance web developers, independent designers, and small digital agencies.
 2. Enter a new client request.
 3. Compare it with the agreement using the configured Ollama model.
 4. Review the classification, explanation, and verified source quotations.
-5. Generate and edit a change-order proposal.
-6. Copy the proposal or export it as Markdown.
+5. Generate and edit a change-order proposal with optional local cost and
+   timeline suggestions.
+6. Copy or download the final proposal as Markdown or PDF.
 
 The app does not currently create persistent projects. The project name is
 entered as proposal metadata.
@@ -38,15 +39,15 @@ validate the model's interpretation.
 - Local Ollama inference by default with structured response validation.
 - Evidence quote checks and conservative handling of missing or invalid
   evidence.
-- Deterministic change-order proposal generation from a validated analysis.
-- Editable proposal preview, clipboard copy, and Markdown download.
+- Deterministic proposal text from validated analysis, with optional local model
+  suggestions for cost and timeline.
+- Editable proposal preview, clipboard copy, and Markdown/PDF downloads.
 - Automated backend coverage and a frontend production build.
 
 ## Deferred or excluded
 
 - SQLite project and report history
 - OCR for scanned PDFs
-- PDF proposal export
 - Authentication, teams, and cloud synchronization
 - Billing and payment processing
 - Automatic client communication
@@ -58,7 +59,7 @@ validate the model's interpretation.
   exists exactly in the submitted agreement.
 - Require human review when evidence is missing or the model reports ambiguity
   or a potential scope change.
-- Keep generated prices, dates, and contractual terms out of the report unless
-  the user supplies them; otherwise use explicit placeholders.
+- Label model-generated price and timeline values as rough estimates, include
+  their assumptions, and require freelancer review before sharing.
 - Require users to review and edit proposals before sharing them.
 - Do not automatically send client-facing messages.

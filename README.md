@@ -17,13 +17,14 @@ default.
   Missing or invented evidence requires human review. Exact quotations do not
   prove that the model interpreted them correctly.
 - Generate a change-order proposal from the validated analysis, edit it in the
-  browser, then copy it or download it as Markdown. Unprovided cost and timeline
-  remain “To be agreed.” Report generation does not make another model call.
+  browser, then copy it or download it as Markdown or PDF. The local model can
+  suggest rough costs and timelines for missing values and lists its assumptions
+  for freelancer review.
 
 ScopeGuard is decision support, not legal advice. Review the agreement,
 classification, evidence, and proposal yourself before discussing a change with
 a client. The project does not currently store projects or report history in
-SQLite, export PDF, or contact clients.
+SQLite or contact clients.
 
 ## Requirements
 
@@ -104,8 +105,8 @@ The API root is `http://127.0.0.1:8000/`, health check is
 3. Review the classification, explanation, exact source quotations, and any
    human-review notice.
 4. Enter proposal details and choose **Generate proposal**.
-5. Edit the Markdown proposal, then choose **Export Markdown** or **Copy
-   proposal**.
+5. Review and edit the proposal, then choose **Export Markdown**, **Download
+   PDF**, or **Copy proposal**.
 
 The included agreement and requests in `sample_data/` are synthetic examples.
 They are suitable for local development and should not be treated as contracts.
@@ -118,6 +119,7 @@ They are suitable for local development and should not be treated as contracts.
 | `POST` | `/api/agreements/parse` | Parse one TXT or text-based PDF upload in memory. |
 | `POST` | `/api/analysis/scope` | Compare agreement text and a client request using Ollama. |
 | `POST` | `/api/reports/change-order` | Validate analysis evidence and return a Markdown proposal. |
+| `POST` | `/api/reports/change-order/pdf` | Download a PDF of the edited proposal Markdown. |
 
 See the interactive API documentation at `/docs` while the backend is running.
 
