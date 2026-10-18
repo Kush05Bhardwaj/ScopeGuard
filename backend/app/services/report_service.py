@@ -5,6 +5,7 @@ from app.schemas.report import ChangeOrderReportRequest, ChangeOrderReportRespon
 
 def generate_change_order(
     request: ChangeOrderReportRequest,
+    estimate_assumptions: str = "",
 ) -> ChangeOrderReportResponse:
     if not request.analysis.evidence and (
         request.analysis.category != "needs_review"
@@ -46,6 +47,12 @@ def generate_change_order(
         if request.analysis.evidence
         else "No verified agreement passage was returned. Manual review is required."
     )
+    estimate_note = (
+        f"\n\n**AI-generated planning estimate — review and edit before sharing.** "
+        f"Assumptions: {estimate_assumptions.strip()}"
+        if estimate_assumptions.strip()
+        else ""
+    )
 
     markdown = f"""# {title}
 
@@ -84,6 +91,7 @@ This proposal documents a requested change to the existing project scope.
 ## 6. Estimated Cost
 
 {request.estimated_cost.strip() or "To be agreed"}
+{estimate_note}
 
 ## 7. Estimated Timeline
 
@@ -105,4 +113,10 @@ Please review and edit the proposed work, cost, and timeline. Discuss any open d
 
 *This document is a draft for discussion, not legal advice or a signed agreement.*
 """
-    return ChangeOrderReportResponse(title=title, markdown=markdown)
+    return ChangeOrderReportResponse(
+        title=title,
+        markdown=markdown,
+        estimated_cost=request.estimated_cost.strip() or "To be agreed",
+        estimated_timeline=request.estimated_timeline.strip() or "To be agreed",
+        estimate_assumptions=estimate_assumptions,
+    )

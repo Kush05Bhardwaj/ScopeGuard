@@ -2,15 +2,6 @@
 
 A local-first assistant for comparing client requests with an agreed project scope.
 
-## Phase 1 foundation checklist
-
-- [x] Project folder and Git repository in place.
-- [x] React, Vite, and TypeScript frontend scaffolded.
-- [x] FastAPI backend and health endpoint created.
-- [x] Frontend connected to the backend health endpoint.
-- [x] Documentation, synthetic sample data, and Git ignore rules added.
-- [x] Frontend and backend verified locally; foundation committed.
-
 ## Stack
 
 - Frontend: React, Vite, TypeScript
@@ -49,10 +40,11 @@ Scope review is available at `POST /api/analysis/scope`. It calls a local Ollama
 server (defaults: `http://127.0.0.1:11434`, model `gemma3:4b`) and verifies every
 evidence quote against the submitted agreement before returning it.
 
-Change-order proposals are generated deterministically from a reviewed analysis
-with `POST /api/reports/change-order`. The frontend lets you edit the Markdown,
-copy it, or download it as a `.md` file. Cost and timeline default to “To be
-agreed”; no additional model call or PDF export is used.
+Change-order proposals are generated from a reviewed analysis with
+`POST /api/reports/change-order`. When enabled, the local model suggests a rough
+cost range and timeline for missing values and lists its assumptions. Treat
+these as editable planning estimates, not a quote. The frontend lets you edit
+the Markdown, then download the final draft as Markdown or PDF.
 
 By default, the frontend API URL and Ollama URL point to `127.0.0.1`, so
 agreement parsing and inference run on the same device. If you override either
@@ -64,12 +56,9 @@ Python 3.12 is the recommended baseline; the environment used to establish this
 foundation has Python 3.14. Node.js 22 LTS is recommended; Node.js 24 is installed.
 If PowerShell blocks the `npm` script, invoke `npm.cmd` as shown above.
 
-See [MVP](docs/MVP.md), [architecture](docs/ARCHITECTURE.md), the
-[Phase 2 parsing checklist](docs/PHASE2.md), and the
-[Phase 3 local analysis checklist](docs/PHASE3.md), the
-[Phase 4 reports checklist](docs/PHASE4.md), and the
-[Phase 5 validation notes](docs/PHASE5.md). Persistent project storage is
-planned for a later phase.
+See the [MVP](docs/MVP.md) and [architecture](docs/ARCHITECTURE.md) for product
+scope and implementation details. Persistent project storage is planned for a
+later release.
 
 ## Privacy
 

@@ -56,11 +56,15 @@ function App() {
   const [projectName, setProjectName] = useState("");
   const [clientName, setClientName] = useState("");
   const [proposedWork, setProposedWork] = useState("");
-  const [estimatedCost, setEstimatedCost] = useState("To be agreed");
-  const [estimatedTimeline, setEstimatedTimeline] = useState("To be agreed");
+  const [estimatedCost, setEstimatedCost] = useState("");
+  const [estimatedTimeline, setEstimatedTimeline] = useState("");
+  const [autoEstimate, setAutoEstimate] = useState(true);
+  const [estimateContext, setEstimateContext] = useState("");
+  const [estimateAssumptions, setEstimateAssumptions] = useState("");
   const [reportMarkdown, setReportMarkdown] = useState<string | null>(null);
   const [reportStatus, setReportStatus] = useState<string | null>(null);
   const [generatingReport, setGeneratingReport] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +95,9 @@ function App() {
     setAnalysis(null);
     setReportMarkdown(null);
     setReportStatus(null);
+    setEstimatedCost("");
+    setEstimatedTimeline("");
+    setEstimateAssumptions("");
     setError(null);
     setUploading(true);
     const form = new FormData();
@@ -113,6 +120,9 @@ function App() {
     setAnalysis(null);
     setReportMarkdown(null);
     setReportStatus(null);
+    setEstimatedCost("");
+    setEstimatedTimeline("");
+    setEstimateAssumptions("");
     setError(null);
     setAnalyzing(true);
     try {
@@ -149,10 +159,21 @@ function App() {
           proposed_work: proposedWork,
           estimated_cost: estimatedCost,
           estimated_timeline: estimatedTimeline,
+          auto_estimate: autoEstimate,
+          estimate_context: estimateContext,
         }),
       });
       if (!response.ok) throw new Error(await responseError(response));
-      const data = (await response.json()) as { title: string; markdown: string };
+      const data = (await response.json()) as {
+        title: string;
+        markdown: string;
+        estimated_cost: string;
+        estimated_timeline: string;
+        estimate_assumptions: string;
+      };
+      setEstimatedCost(data.estimated_cost);
+      setEstimatedTimeline(data.estimated_timeline);
+      setEstimateAssumptions(data.estimate_assumptions);
       setReportMarkdown(data.markdown);
     } catch (err) {
       setError(requestError(err, "Unable to generate the proposal."));
@@ -168,6 +189,37 @@ function App() {
       setReportStatus("Proposal copied to clipboard.");
     } catch {
       setReportStatus("Clipboard access is unavailable. Select and copy the proposal text.");
+    }
+  }
+
+  async function exportPdf() {
+    if (!reportMarkdown) return;
+    setExportingPdf(true);
+    setReportStatus(null);
+    setError(null);
+    try {
+      const response = await fetch(`${API_BASE}/api/reports/change-order/pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: `${projectName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "scopeguard-change-order"}.pdf`,
+          markdown: reportMarkdown,
+        }),
+      });
+      if (!response.ok) throw new Error(await responseError(response));
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${projectName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "scopeguard-change-order"}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+      setReportStatus("PDF proposal downloaded.");
+    } catch (err) {
+      setError(requestError(err, "Unable to export the PDF proposal."));
+    } finally {
+      setExportingPdf(false);
     }
   }
 
@@ -269,13 +321,15 @@ function App() {
             <section className="report-builder" aria-labelledby="report-heading">
               <div className="step-label"><span>04</span><span>CLIENT PROPOSAL</span></div>
               <h2 id="report-heading">Prepare a change-order draft</h2>
-              <p className="card-help">The draft uses the reviewed analysis and verified agreement passages. No additional model call is made.</p>
+              <p className="card-help">The local model can suggest a rough cost range and timeline. These are planning estimates, not a quote; review and edit them before sharing.</p>
               <div className="report-fields">
                 <label>Project name<input value={projectName} onChange={(event) => setProjectName(event.target.value)} maxLength={200} placeholder="Website redesign" /></label>
                 <label>Client name <span className="field-optional">(optional)</span><input value={clientName} onChange={(event) => setClientName(event.target.value)} maxLength={200} placeholder="Client name" /></label>
                 <label>Proposed additional work<textarea value={proposedWork} onChange={(event) => setProposedWork(event.target.value)} maxLength={5_000} rows={3} placeholder="Describe work for both parties to review" /></label>
-                <label>Estimated cost<input value={estimatedCost} onChange={(event) => setEstimatedCost(event.target.value)} maxLength={200} /></label>
-                <label>Estimated timeline<input value={estimatedTimeline} onChange={(event) => setEstimatedTimeline(event.target.value)} maxLength={200} /></label>
+                <label className="estimate-toggle"><input type="checkbox" checked={autoEstimate} onChange={(event) => setAutoEstimate(event.target.checked)} /> Ask the local model to suggest missing cost and timeline</label>
+                <label>Pricing context <span className="field-optional">(optional)</span><input value={estimateContext} onChange={(event) => setEstimateContext(event.target.value)} maxLength={1_000} placeholder="Currency, hourly rate, region, or availability" /></label>
+                <label>Estimated cost<input value={estimatedCost} onChange={(event) => setEstimatedCost(event.target.value)} maxLength={200} placeholder={autoEstimate ? "Suggested automatically when you generate" : "To be agreed"} /></label>
+                <label>Estimated timeline<input value={estimatedTimeline} onChange={(event) => setEstimatedTimeline(event.target.value)} maxLength={200} placeholder={autoEstimate ? "Suggested automatically when you generate" : "To be agreed"} /></label>
               </div>
               <button className="analyze-button report-generate" type="button" onClick={() => void generateReport()} disabled={!projectName.trim() || generatingReport}>
                 {generatingReport ? "Preparing draft…" : reportMarkdown ? "Regenerate draft" : "Generate proposal"}<span aria-hidden="true">→</span>
@@ -283,10 +337,12 @@ function App() {
               {reportMarkdown !== null && (
                 <div className="report-preview">
                   <div className="report-preview-heading"><strong>Editable Markdown proposal</strong><span>Edit any wording before export.</span></div>
+                  {estimateAssumptions && <p className="estimate-note"><strong>AI estimate assumptions:</strong> {estimateAssumptions} Review the price and schedule before sending this draft.</p>}
                   <label className="visually-hidden" htmlFor="report-markdown">Editable proposal in Markdown</label>
                   <textarea id="report-markdown" className="markdown-editor" value={reportMarkdown} onChange={(event) => setReportMarkdown(event.target.value)} rows={20} />
                   <div className="report-actions">
                     <button type="button" onClick={() => downloadMarkdown(`${projectName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "change-order"}-proposal.md`, reportMarkdown)}>Export Markdown</button>
+                    <button type="button" onClick={() => void exportPdf()} disabled={exportingPdf}>{exportingPdf ? "Creating PDF…" : "Download PDF"}</button>
                     <button type="button" onClick={() => void copyReport()}>Copy proposal</button>
                   </div>
                   {reportStatus && <p className="report-status" role="status">{reportStatus}</p>}

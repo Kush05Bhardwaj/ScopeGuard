@@ -14,6 +14,14 @@ Python and FastAPI validate requests, parse agreement documents, orchestrate ana
 
 Ollama with a compatible Gemma model compares requests with documented scope and returns structured analysis. Model output is untrusted input; each evidence quote is checked against the submitted agreement before it is returned.
 
+### Reports
+
+The report endpoint validates the analysis and verifies evidence quotations
+again. It generates the proposal text deterministically. If automatic
+estimates are enabled and cost or timeline is missing, it calls the configured
+local Ollama model for rough suggestions and assumptions. The user edits the
+Markdown draft and can download the final edited content as Markdown or PDF.
+
 ### Storage
 
 SQLite is planned for project metadata, extracted requirements, analysis results, and request history. Original documents remain local. Data deletion and retention behavior must be documented before release.
@@ -26,7 +34,9 @@ SQLite is planned for project metadata, extracted requirements, analysis results
 4. User submits a new client request.
 5. Analysis compares the request against the evidence.
 6. The result is schema-validated and returned to the frontend.
-7. The user reviews the result and edits the proposed response.
+7. The user reviews the result and prepares an editable change-order proposal.
+8. Optional estimate suggestions are generated locally, then the user edits and
+   exports the proposal.
 
 ## Privacy and reliability
 
