@@ -1,6 +1,6 @@
-# ScopeGuard Local
+# ScopeGuard
 
-ScopeGuard Local helps freelancers compare a new client request with a project
+ScopeGuard helps freelancers compare a new client request with a project
 agreement, review the supporting passages, and prepare an editable change-order
 proposal. The current workflow uses a local FastAPI service and Ollama by
 default.
